@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1 id="main-goal" class="main-goal"></h1>
+  <div class="todo-app">
+    <main>
+      <div class="task-input">
+        <input type="text" id="task-input" placeholder="Enter a new task...">
+        <button class="submit-btn">Add Task</button>
+      </div>
+
+      <ul class="task-list">
+        <!-- Tasks will be dynamically added here -->
+      </ul>
+    </main>
+
+    <footer class="footer">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="active">Active</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+      <button class="clear-completed-btn">Clear Completed</button>
+    </footer>
+  </div>
+  <script>
+    let todos = [];
+const addTaskButton = document.querySelector('.submit-btn');
+const taskInput = document.getElementById('task-input');
+const taskList = document.querySelector('.task-list');
+const clearCompletedBtn = document.querySelector('.clear-completed-btn');
+const filterButtons = document.querySelectorAll('.filter-btn');
+
+// Add a new task
+addTaskButton.addEventListener('click', function () {
+  const taskValue = taskInput.value.trim();
+  if (taskValue === '') {
+    alert('Please enter a valid task!');
+    return;
+  }
+
+  const todoItem = {
+    content: taskValue,
+    isComplete: false,
+  };
+  todos.push(todoItem);
+  taskInput.value = '';
+  showTodos(); // Default filter is 'all'
+});
+
+// Clear completed tasks
+clearCompletedBtn.addEventListener('click', function () {
+  todos = todos.filter(todo => !todo.isComplete);
+  showTodos();
+});
+
+// Filter tasks (All, Active, Completed)
+filterButtons.forEach(button => {
+  button.addEventListener('click', function () {
+    const filter = button.getAttribute('data-filter');
+    filterButtons.forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+    showTodos(filter);
+  });
+});
+
+// Show tasks based on the selected filter
+function showTodos(filter = 'all') {
+  taskList.innerHTML = '';
+
+  // Filter todos based on the selected filter
+  const filteredTodos = todos.filter(todo => {
+    if (filter === 'active') return !todo.isComplete;
+    if (filter === 'completed') return todo.isComplete;
+    return true; // Default 'all'
+  });
+
+  // Render the tasks
+  filteredTodos.forEach((todo, index) => {
+    const li = document.createElement('li');
+    li.classList.add('task-item');
+
+    // Mark completed tasks visually
+    if (todo.isComplete) {
+      li.classList.add('completed');
+    }
+
+    // Task name
+    const taskName = document.createElement('p');
+    taskName.classList.add('task-name');
+    taskName.textContent = todo.content;
+
+    // Completion button
+    const statusButton = document.createElement('button');
+    statusButton.classList.add('status-btn');
+    statusButton.textContent = todo.isComplete ? 'Complete' : 'Incomplete';
+    statusButton.style.color = todo.isComplete ? 'green' : 'red';
+    statusButton.addEventListener('click', () => {
+      todos[index].isComplete = !todos[index].isComplete;
+      showTodos(filter);
+    });
+
+    // Delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.classList.add('delete-btn');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.addEventListener('click', () => {
+      todos.splice(index, 1); // Remove task
+      showTodos(filter);
+    });
+
+    li.appendChild(taskName);
+    li.appendChild(statusButton);
+    li.appendChild(deleteBtn);
+    taskList.appendChild(li);
+  });
+}
+
+// Initial display
+showTodos();
+
+
+  </script>
+</body>
+</html>
